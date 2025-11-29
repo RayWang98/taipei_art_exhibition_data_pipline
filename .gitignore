@@ -1,0 +1,9 @@
+/venv
+/__pycache__
+/.env
+/*.json
+/*.csv
+/*.xlsx
+/*test*
+/01_data
+/02_images

@@ -1,0 +1,44 @@
+# 這個自動化流程的名稱
+name: 每日 ETL 排程與資料庫更新
+
+on: # 工作排成設定
+  push:
+    branches: [ main ] # 當推送到 main 分支時可以手動觸發
+  schedule:
+    # 每日 UTC 04:00 (台灣時間約中午 12:00) 執行
+    # 這裡的設定是 '分 時 日 月 週'
+    - cron: '0 22 * * *' 
+  workflow_dispatch: # 允許在 GitHub 介面手動點擊運行
+
+jobs:
+  run_etl: # 定義一個名為 run_etl 的任務： 一個 Workflow 可以有多個 Job。
+    runs-on: ubuntu-latest # 運行環境： 指定 Job 在哪種作業系統上執行。ubuntu-latest 是一個穩定且常用的 Linux 虛擬機。
+    
+    steps:
+    # @v4 和 @v5 是這些 Action 的版本標籤。GitHub 會定期發布新版本來修復錯誤或新增功能。
+    # 您應該使用的版本是：最新且穩定的版本。目前 v4 和 v5 都是推薦使用的穩定版本，所以您提供的版本是正確的，不需要修改。
+    - name: 檢查程式碼
+      uses: actions/checkout@v4 # Action 1：下載程式碼。 將您的 GitHub 儲存庫中的所有檔案下載到執行環境中。
+
+    - name: 設定 Python 環境
+      uses: actions/setup-python@v5 # Action 2：設定 Python。 在執行環境中安裝指定的 Python 版本。
+      with:
+        python-version: '3.11'
+        
+    - name: 安裝專案依賴
+      run: |
+        # 所有依賴都定義在 requirements.txt 中
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: 執行 ETL 流程
+      env: # 設定環境變數： 在運行 ETL 腳本前，將 GitHub Secrets 中的敏感資訊載入為環境變數。
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        USER_AGENT: ${{ secrets.USER_AGENT }}
+        CONNECTION: ${{ secrets.CONNECTION }}
+        ACCEPT: ${{ secrets.ACCEPT }}
+      run: |
+        # 執行您的主程式碼檔案
+        python etl_pipeline.py
