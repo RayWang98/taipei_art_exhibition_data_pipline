@@ -4,6 +4,8 @@
 from google import genai          # Gemini API
 from google.genai import types    # Gemini 結構化輸出 Schema
 from google.genai.errors import APIError # 處理 Gemini API 錯誤
+import googlemaps
+from googlemaps.exceptions import ApiError, Timeout 
 
 # ====================================================================
 # II. 網路請求 (Web/HTTP) 與解析
