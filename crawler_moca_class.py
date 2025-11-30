@@ -151,7 +151,7 @@ class ExhibitionETLPipeline:
             data.start_date = date_container[0].select_one('span.year').get_text(strip = True) + '-' + date_container[0].select_one('p.day').contents[0].strip().replace(' / ', '-')
             data.end_date = date_container[1].select_one('span.year').get_text(strip = True) + '-' + date_container[1].select_one('p.day').contents[0].strip().replace(' / ', '-')
 
-            data.overview, visit_time_interval_detail, data.space = self._get_overview_time_space_info(data.pageurl) # 展覽內頁說明
+            visit_time_interval_detail, data.overview, data.space = self._get_overview_time_space_info(data.pageurl) # 展覽內頁說明
             data.price, visit_time_interval_official, data.addr = self._get_price_time_addr_info() # 票價  參觀時間  館址地址 
             data.visit_time_interval = visit_time_interval_detail if visit_time_interval_detail == '' else visit_time_interval_official
             
