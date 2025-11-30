@@ -51,6 +51,11 @@ class ExhibitionETLPipeline:
         self.TARGET_TABLE = 'exhibition_data' # 我們在 Supabase 建立的資料表名稱
         self.VENUE_NAME = VENUE_NAME 
         self.TIMEZONE = timezone('Asia/Taipei')
+        self.suc_venues : List[str] = [] # 成功展館清單
+        self.failed_venues : List[str] = [] # 失敗展館清單
+        self.empty_venues : List[str] = [] # 沒有資料展館清單
+        self.db_load_successful = False
+
     # --- 2. 啟動相關連線 初始化外部服務 ---
         # Supabase
         self.engine: Any = None
@@ -84,13 +89,15 @@ class ExhibitionETLPipeline:
                 if not temp.empty:
                     print(f"提取完成，目前提取{idx + 1} / {len(self.VENUE_NAME)} : {temp['title']} ====== 共 {len(temp)} 筆記錄加入。")
                     df_all = pd.concat([df_all, temp], axis = 0, ignore_index = True)
-                    print()
+                    self.suc_venues.append(i)
                 else:
                     print(f"未找到新數據，跳過 : {temp['title']}")
+                    self.empty_venues.append(i) # 加入失敗，因為沒有擷取到資料，雖然有成功
                     
 
             except Exception as e:
                 print(f'Error: 執行 {i} 爬蟲時發生錯誤: {e}')
+                self.failed_venues.append(i)
             # ----------------------------------------------------
         
         print(f'提取完成。累積共 {len(df_all)}筆記錄')
@@ -150,10 +157,32 @@ class ExhibitionETLPipeline:
                 index = False
             )
             
-            print(f"✅ 數據成功載入 Supabase 到表格 {self.TARGET_TABLE}，共 {len(df)} 筆。")
+            print(f'✅ 數據成功載入 Supabase 到表格 {self.TARGET_TABLE}，共 {len(df)} 筆。')
+            self.db_load_successful = True
             
         except Exception as e:
             print(f'❌ 數據載入失敗，錯誤訊息: {e}')
+
+    def _get_final_summary(self) -> None:
+        print("\n" + "="*50)
+        print("最終結果如下")
+        print("="*50)
+
+        print(f'成功抓取的展館：{self.suc_venues}')
+        print(f'失敗抓取的展館：{self.failed_venues}')
+        print(f'沒有抓取到數據的展館：{self.empty_venues}')
+        db_save_status = '存入失敗'
+        if self.db_load_successful:
+            db_save_status = '存入成功!  '
+        elif self.engine:
+            db_save_status = '存入失敗!  成功連線，但載入發生SQL或IO錯誤，請檢察DB狀態'
+        else:
+            db_save_status = '存入失敗!  連線就失敗了!請檢查!'
+
+        print(f'資料庫存入狀態：{db_save_status}')
+
+
+
 
 # --- 5. 執行主管線 (Pipeline Execution) ---
     def run_pipeline(self):
@@ -164,6 +193,9 @@ class ExhibitionETLPipeline:
         
         # 2. 載入
         self._load_data(df_transformed)
+
+        # 3. 報告
+        self._get_final_summary()
 
 
 if __name__ == '__main__':
