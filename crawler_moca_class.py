@@ -156,7 +156,7 @@ class ExhibitionETLPipeline:
             data.visit_time_interval = visit_time_interval_detail if visit_time_interval_detail == '' else visit_time_interval_official
             
             # 圖片 URL 處理：這裡只存 big_img 的 URL，實際圖片下載會在後續步驟
-            data.big_img_url = urljoin(self.urlpath, i.select_one('figure.imgFrame').get('src')) # 抓取展覽大圖
+            data.big_img_url = urljoin(self.urlpath, i.select_one('figure.imgFrame img.b-lazy').get('data-src')) # 抓取展覽大圖
 
             print(f'[{ccnt + 1}/{len(container)}] 提取基礎資訊: {data.title}') 
             extracted_data.append(data)
