@@ -14,6 +14,8 @@ from crawler_tfam_class import ExhibitionETLPipeline as tfampipline
 from crawler_ntnu_class import ExhibitionETLPipeline as ntnupipline
 from crawler_moca_class import ExhibitionETLPipeline as mocapipline
 from crawler_huashan_class import ExhibitionETLPipeline as huashanpipline
+# 各展覽標籤
+from tag_analysis_module import geniai
 
 crawler_map = {
     '松山文創園區' : shpipline,
@@ -57,6 +59,7 @@ class ExhibitionETLPipeline:
         self.empty_venues : List[str] = [] # 沒有資料展館清單
         self.db_load_successful_1 = False
         self.db_load_successful_2 = False
+        self.taglogs = False
 
     # --- 2. 啟動相關連線 初始化外部服務 ---
         # Supabase
@@ -178,6 +181,10 @@ class ExhibitionETLPipeline:
         except Exception as e:
             print(f'❌ 數據載入失敗，錯誤訊息: {e}')
 
+    def _tag_pipeline(self):
+
+        self.taglogs = geniai().run_ai_analysis()
+    
     def _get_final_summary(self) -> None:
         print("\n" + "="*50)
         print("最終結果如下")
@@ -188,7 +195,7 @@ class ExhibitionETLPipeline:
         print(f'沒有抓取到數據的展館：{self.empty_venues}')
         db_save_status = '存入失敗'
         if self.db_load_successful_1 and self.db_load_successful_2:
-            db_save_status = '存入成功!  '
+            db_save_status = '存入成功!'
         elif not self.db_load_successful_1 and self.db_load_successful_2:
             db_save_status = '日更資料存入成功!  累積資料存入失敗'
         elif self.db_load_successful_1 and not self.db_load_successful_2:
@@ -198,7 +205,7 @@ class ExhibitionETLPipeline:
         else:
             db_save_status = '皆存入失敗!  連線就失敗了!請檢查!'
 
-        print(f'資料庫存入狀態：{db_save_status}')
+        print(f"資料庫存入狀態：{db_save_status}；標籤資料庫存入狀態：{'成功' if self.taglogs else '失敗'}")
 
 
 
@@ -212,7 +219,8 @@ class ExhibitionETLPipeline:
         
         # 2. 載入
         self._load_data(df_transformed)
-
+        self._tag_pipeline()
+        
         # 3. 報告
         self._get_final_summary()
 
@@ -224,6 +232,7 @@ if __name__ == '__main__':
     main_pip = ExhibitionETLPipeline(['松山文創園區', '富邦美術館', '國立故宮博物院', '臺北市立美術館', '國立師大美術館', '台北當代藝術館', '華山1914文化創意園區'])
     #'松山文創園區', '富邦美術館', '國立故宮博物院', '臺北市立美術館', '國立師大美術館', '台北當代藝術館', '華山1914文化創意園區'
     main_pip.run_pipeline()
+    
 
 
 '''
