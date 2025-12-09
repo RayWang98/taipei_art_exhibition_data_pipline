@@ -6,6 +6,7 @@ from typing import List, Optional, Any
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pytz import timezone
+
 # 各展館爬蟲內容
 from crawler_songshan_class import ExhibitionETLPipeline as shpipline
 from crawler_fubon_class import ExhibitionETLPipeline as fbpipline
@@ -14,6 +15,7 @@ from crawler_tfam_class import ExhibitionETLPipeline as tfampipline
 from crawler_ntnu_class import ExhibitionETLPipeline as ntnupipline
 from crawler_moca_class import ExhibitionETLPipeline as mocapipline
 from crawler_huashan_class import ExhibitionETLPipeline as huashanpipline
+
 # 各展覽標籤
 from tag_analysis_module import geniai
 
@@ -49,6 +51,7 @@ class supabase_db:
 class ExhibitionETLPipeline:
     def __init__(self, VENUE_NAME : List):
     # --- 1. 核心設定 ---
+        load_dotenv()
         self.DATABASE_URL = os.getenv('DATABASE_URL') # 從 .env 讀取 Supabase 連線字串
         self.TARGET_TABLE_1 = 'exhibition_data' # 我們在 Supabase 建立的資料表名稱
         self.TARGET_TABLE_2 = 'exhibition_data_daily' # 我們在 Supabase 建立的資料表名稱
@@ -167,7 +170,7 @@ class ExhibitionETLPipeline:
             print(f'✅ 數據成功累積載入 Supabase 到表格 {self.TARGET_TABLE_1}，共 {len(df)} 筆。')
             self.db_load_successful_1 = True
 
-            # replace-data-streamlit_use_version
+            # replace-data-streamlit_use_version_daily
             df.to_sql( # append-data-time_series
                 name = self.TARGET_TABLE_2, 
                 con = self.engine, 
@@ -183,8 +186,8 @@ class ExhibitionETLPipeline:
 
     def _tag_pipeline(self) -> None:
 
-        self.taglogs = geniai()
-        self.taglogs.run_ai_analysis()
+        ai_analyengine = geniai()
+        self.taglogs = ai_analyengine.run_ai_analysis()
     
     def _get_final_summary(self) -> None:
         print("\n" + "="*50)
@@ -228,9 +231,8 @@ class ExhibitionETLPipeline:
 
 if __name__ == '__main__':
     # 載入環境變數（僅用於本地開發調試）
-    load_dotenv()
     # 在本地運行時，執行整個 ETL 流程
-    main_pip = ExhibitionETLPipeline(['松山文創園區', '富邦美術館', '國立故宮博物院', '臺北市立美術館', '國立師大美術館', '台北當代藝術館', '華山1914文化創意園區'])
+    main_pip = ExhibitionETLPipeline(['富邦美術館'])
     #'松山文創園區', '富邦美術館', '國立故宮博物院', '臺北市立美術館', '國立師大美術館', '台北當代藝術館', '華山1914文化創意園區'
     main_pip.run_pipeline()
     

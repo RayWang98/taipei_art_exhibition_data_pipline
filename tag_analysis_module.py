@@ -38,6 +38,7 @@ class EmptyResponseError(Exception):
 
 class geniai:
     def __init__(self):
+        load_dotenv()
         self.GEMINI_KEY = os.getenv('GEMINI_API_KEY') # AI APIKEY
         self.INITIAL_DELAY = 5
         self.BATCHSIZE = 15
@@ -212,6 +213,7 @@ class geniai:
     # 新增一個執行主線函式來模擬調用
     # -----------------------------------------------------------------
     def run_ai_analysis(self) ->  bool:
+        load_dotenv()
         df_raw = self._connectsql_get_data()
         if df_raw.empty:
             print('無展覽數據可供分析。')
