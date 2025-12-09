@@ -232,7 +232,7 @@ class ExhibitionETLPipeline:
 if __name__ == '__main__':
     # 載入環境變數（僅用於本地開發調試）
     # 在本地運行時，執行整個 ETL 流程
-    main_pip = ExhibitionETLPipeline(['富邦美術館'])
+    main_pip = ExhibitionETLPipeline(['松山文創園區', '富邦美術館', '國立故宮博物院', '臺北市立美術館', '國立師大美術館', '台北當代藝術館', '華山1914文化創意園區'])
     #'松山文創園區', '富邦美術館', '國立故宮博物院', '臺北市立美術館', '國立師大美術館', '台北當代藝術館', '華山1914文化創意園區'
     main_pip.run_pipeline()
     
