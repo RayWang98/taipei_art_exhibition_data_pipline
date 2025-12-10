@@ -16,7 +16,7 @@ jobs:
     
     steps:
     # @v4 和 @v5 是這些 Action 的版本標籤。GitHub 會定期發布新版本來修復錯誤或新增功能。
-    # 您應該使用的版本是：最新且穩定的版本。目前 v4 和 v5 都是推薦使用的穩定版本，所以您提供的版本是正確的，不需要修改。
+    # 使用的版本是：最新且穩定的版本。目前 v4 和 v5 都是推薦使用的穩定版本。
     - name: 檢查程式碼
       uses: actions/checkout@v4 # Action 1：下載程式碼。 將您的 GitHub 儲存庫中的所有檔案下載到執行環境中。
 
@@ -39,6 +39,8 @@ jobs:
         USER_AGENT: ${{ secrets.USER_AGENT }}
         CONNECTION: ${{ secrets.CONNECTION }}
         ACCEPT: ${{ secrets.ACCEPT }}
+        DATABASENAME_GET: ${{ secrets.DATABASENAME_GET }}
+        DATABASENAME_SAVE: ${{ secrets.DATABASENAME_SAVE }}
       run: |
         # 執行您的主程式碼檔案
         python etl_pipeline.py
