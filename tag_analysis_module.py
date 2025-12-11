@@ -38,7 +38,6 @@ class EmptyResponseError(Exception):
 
 class geniai:
     def __init__(self):
-        load_dotenv()
         self.GEMINI_KEY = os.getenv('GEMINI_API_KEY') # AI APIKEY
         self.INITIAL_DELAY = 5
         self.BATCHSIZE = 15
@@ -94,9 +93,14 @@ class geniai:
     def _connectsql_get_data(self) -> pd.DataFrame:
         try:
             df = pd.read_sql_query(self.SQLQUERY, self.engine) # 使用 Pandas 讀取數據
+            if len(df) = 0:
+                print('空集合')
+            else:
+                print(f'Info : 成功讀取')
             return df
         
         except Exception as e:
+            print(f'Warning : 請注意，發生錯誤。 {e}')
             return pd.DataFrame()
 
     def _extract_with_gemini(self, input_df : pd.DataFrame) -> List[ExhibitionKeyword]: # 用來跑google gemeni的
