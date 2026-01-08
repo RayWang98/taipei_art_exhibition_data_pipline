@@ -6,36 +6,44 @@
 ![Selenium](https://img.shields.io/badge/Web_Scraping-Selenium-43B02A?style=for-the-badge&logo=selenium&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
-這是一個針對台北市各大藝文場館（如故宮、北美館、松菸等）的自動化數據工程專案。
-專案核心解決了 **非結構化數據 (Unstructured Data)** 的自動化提取難題，整合了 **OCR (光學文字辨識)** 與 **LLM (Google Gemini)** 技術，將複雜的網頁佈局與圖片資訊轉化為標準化的資料庫格式。
+> 這是一個針對台北市各大藝文場館（如故宮、北美館、松菸等）的自動化數據工程專案。
+> 專案核心解決了 **非結構化數據 (Unstructured Data)** 的自動化提取難題，整合了 **OCR (光學文字辨識)** 與 **LLM (Google Gemini)** 技術，將複雜的> 網頁佈局與圖片資訊轉化為標準化的資料庫格式。
 
 ---
 
 ## Architecture (系統架構)
 
-本專案採用 **模組化設計 (Modular Design)** 與 **策略模式 (Strategy Pattern)**，確保對不同場館的擴充性。
+> 本專案採用 **模組化設計 (Modular Design)** 與 **策略模式 (Strategy Pattern)**，確保對不同場館的擴充性。
 
 ```mermaid
 graph TD
-    subgraph "Extract Layer (Crawlers)"
-        A[Controller] -->|Trigger| B{Crawler Map}
-        B -->|Static Site| C[Requests + BS4]
-        B -->|Dynamic Site| D[Selenium WebDriver]
-        B -->|Image Data| E[EasyOCR + OpenCV]
+    %% ===== Extract Layer =====
+    subgraph "Extract Layer"
+        A["Job Controller"] -->|Dispatch| B{"Crawler Router"}
+        B -->|Static HTML| C["HTTP Crawler (Requests + BS4)"]
+        B -->|JS Rendered| D["Browser Crawler (Selenium)"]
+        B -->|Image Based| E["OCR Pipeline (OpenCV + EasyOCR)"]
     end
 
-    subgraph "Transform Layer (GenAI & DTL)"
-        C & D & E -->|Raw Text/Bytes| F[Gemini API (RAG Context)]
-        F -->|JSON Extraction| G[Data Class Standardization]
-        G -->|Geocoding| H[Google Maps API]
+    %% ===== Transform Layer =====
+    subgraph "Transform Layer"
+        C -->|Unstructured Text| X["Unified Raw Input"]
+        D -->|Unstructured Text| X
+        E -->|Image to Text| X
+
+        X -->|Context + Prompt| F["LLM Parser (Gemini API)"]
+        F -->|Structured JSON| G["Schema Validation & Normalization"]
+        G -->|Address Field| H["Geocoding Service"]
     end
 
+    %% ===== Load & Serve Layer =====
     subgraph "Load & Serving Layer"
-        G -->|Supabase| I[(PostgreSQL)]
-        I -->|Upsert| J[Exhibition Table]
-        J -->|Read| K[Streamlit App]
+        G -->|Upsert| I["Primary Database (PostgreSQL)"]
+        I -->|Read API| J["Data Access Layer"]
+        J -->|Visualization| K["Streamlit Dashboard"]
     end
-    
+
+    %% ===== Styles =====
     style F fill:#8E75B2,stroke:#333,stroke-width:2px,color:white
     style E fill:#FFD43B,stroke:#333,stroke-width:2px,color:black
     style K fill:#FF4B4B,stroke:#333,stroke-width:2px,color:white
