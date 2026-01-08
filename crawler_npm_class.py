@@ -238,32 +238,3 @@ class ExhibitionETLPipeline:
 #     pipeline = ExhibitionETLPipeline()
 #     final_df = pipeline.run_pipeline()
 
-
-'''
-
-資料模型：同樣使用 exhibition_data dataclass，並將 hallname 設為 '國立故宮博物院'。
-
-提取策略（多 URL 提取）：
-
-I. 票價提取 (_get_price_info)：訪問故宮的票價頁面 (self.pricepath)，解析出不同票種的價格資訊，並手動對免費票種進行說明補充。
-
-II. 開館時間提取 (_get_timeinterval_info)：訪問開館時間頁面 (self.time_interval_url)，提取參觀時間資訊。
-
-III. 地址提取 (_get_addr_info)：從主展覽頁面 (soup) 的特定位置提取地址。
-
-IV. 展覽詳情提取 (_get_overview_content)：訪問每個展覽的內頁 URL，提取展覽概述，並設置了停止條件（遇到「相關出版品」即停止抓取內文）。
-
-核心提取 (_extract_base_info)：
-
-遍歷故宮「當期展覽」頁面的列表。
-
-日期特殊處理：針對常設展覽，將開始日期設定為極早的日期 '1900-01-01' 或 '1990-01-01'，結束日期設定為極晚的日期 '2050-12-31'，這是一種在數據層面上標記長期或常設展的常見數據工程手法。
-
-將 I、II、III 步驟中爬取到的全館票價、地址和時間資訊應用到每個展覽的 exhibition_data 實例中。
-
-轉換 (Transform)：
-
-地理編碼 (_transform_googlegeocoding)：使用 Google Maps Geocoding API 將地址轉換為經緯度。
-
-AI/OCR 使用情況：此類別中雖然導入了 cv2、easyocr 和 gemini 相關模組，但在目前的 run_pipeline 和 worker methods 中，並未執行 OCR 或 Gemini 結構化提取步驟，這可能是因為故宮的票價和時間資訊結構清晰，無需進一步的 AI 處理。
-'''

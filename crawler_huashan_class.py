@@ -315,23 +315,3 @@ class ExhibitionETLPipeline:
 #     pipeline = ExhibitionETLPipeline()
 #     final_df = pipeline.run_pipeline()
 
-
-'''
-這個檔案是針對「華山 1914 文化創意園區」的專用爬蟲類別：
-
-資料模型：與 crawler_fubon_class.py 使用相同的 exhibition_data dataclass，確保數據結構的一致性。
-
-提取 (Extract)：
-
-_get_exhibition_urls：爬取華山官網的展演活動頁面 (self.urlpath)，並解析出所有展覽的詳細頁面 URL。
-
-_extract_base_info：訪問每個展覽頁面，提取展覽標題、日期、概述、地址 (data.addr)、場地 (data.space) 和開放時間等資訊。
-
-轉換 (Transform)：
-
-AI 結構化提取 (_extract_with_gemini)：與富邦爬蟲的邏輯相似，但由於華山的票價資訊通常直接在網頁文本中，此處省略了 OCR 步驟。它直接將網頁文本 (item.pagetext) 傳遞給 Gemini API，進行結構化票價提取，並同樣應用了 RAG 提示詞工程和重試機制。
-
-地理編碼 (_transform_googlegeocoding)：使用 Google Maps Geocoding API 將地址轉換為經緯度。
-
-網路設定：為了處理華山網頁可能的 SSL 憑證問題，程式碼中使用了 urllib3.disable_warnings(InsecureRequestWarning) 和 verify=False，這在資料工程中是處理特定來源的常見手段。
-'''

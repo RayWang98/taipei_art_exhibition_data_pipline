@@ -236,19 +236,3 @@ if __name__ == '__main__':
     #'松山文創園區', '富邦美術館', '國立故宮博物院', '臺北市立美術館', '國立師大美術館', '台北當代藝術館', '華山1914文化創意園區'
     main_pip.run_pipeline()
     
-
-
-'''
-專案核心 ETL 流程：這個檔案實現了您資料工程專案的 Core Data Pipeline (ETL) 階段。
-
-資料模型：定義了 supabase_db dataclass 作為您在 Supabase 資料庫中的目標資料模型（Data Translation Layer, DTL）。
-
-提取 (Extract)：_extract_data 方法透過 crawler_map 字典，迭代調用七個展館對應的爬蟲類別 (crawler_*_class.py 中定義的 ExhibitionETLPipeline) 的 run_pipeline() 方法來收集原始資料。
-
-轉換 (Transform)：_transform_data 方法將爬取回來的 Pandas DataFrame 轉換為 supabase_db dataclass 的列表。
-
-載入 (Load) & 資料持久化：_load_data 方法使用 SQLAlchemy 引擎（透過 DATABASE_URL 環境變數連線 Supabase PostgreSQL）將轉換後的數據寫入 exhibition_data 表格中，目前使用 if_exists='replace' 策略。
-
-環境變數管理：使用 os.getenv('DATABASE_URL') 和 dotenv 進行環境變數管理，符合您的規劃。
-
-'''

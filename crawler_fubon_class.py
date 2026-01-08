@@ -461,31 +461,3 @@ class ExhibitionETLPipeline:
 #     pipeline = ExhibitionETLPipeline()
 #     final_df = pipeline.run_pipeline()
 
-
-'''
-資料模型：定義了 exhibition_data dataclass，用於暫存單一展覽在爬蟲階段的全部原始和中介資料（包括 OCR、地址、經緯度等）。
-
-多階段提取與轉換：
-
-I. 網頁爬取 (_get_exhibition_urls, _extract_base_info)：抓取當前和即將展覽的 URL，並提取基礎資訊（標題、日期、概述、地址、場地等）。
-
-II. 圖片 OCR 處理 (_download_img, _eocr_process)：
-
-下載專門的票價圖片 (self.imgpath)。
-
-使用 EasyOCR 和 OpenCV 進行複雜的圖片文字識別。
-
-_eocr_process 函數具備了按圖片 X, Y 軸中心點分欄和分行的邏輯，旨在優化票價圖片的結構化文字輸出，供後續 AI 提取。
-
-III. AI 結構化提取 (_extract_with_gemini)：
-
-使用 Gemini API (gemini-2.5-flash-lite) 配合 JSON Schema 進行結構化數據提取。
-
-RAG (Retrieval-Augmented Generation) 工程：將網頁基礎資訊作為參考資訊 (RAG Reference) 嵌入到 Prompt 中，並將 OCR 結果附加到文本中，要求模型嚴格提取票價 (price) 資訊。
-
-包含重試機制和自我修正 Prompt，以處理 JSON 格式解析錯誤或 API 錯誤。
-
-IV. 地理編碼 (_transform_googlegeocoding)：使用 Google Maps Geocoding API 將地址轉換為經緯度 (lat, lon)。
-
-執行入口：run_pipeline() 方法協調了上述所有步驟，並最終返回一個包含所有爬取和處理結果的 Pandas DataFrame，供 etl_pipeline.py 的 _transform_data 階段使用。
-'''

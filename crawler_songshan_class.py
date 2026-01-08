@@ -57,14 +57,6 @@ class exhibition_data:
     lat : Optional[float] = None # 緯度
     lon : Optional[float] = None # 經度
 
-    # ======================================
-    # field(default_factory=list) 的作用是告訴 Python：
-    # >>「每次建立新的 MutableContainerExample 實例時，不要共享舊的 list 物件，請呼叫 list() 這個工廠函式，
-    # >> 為這個新的實例建立一個全新的、獨立的 list 物件。」
-    # ======================================
-# 定義 AI 結構化輸出的數據結構 (與 Gemini Schema 保持一致)
-# 雖然我們從 JSON 載入，但這提供了一個清晰的目標結構
-
 @dataclass
 class GeminiExtractedData:
     title : str # 展覽名稱
@@ -481,42 +473,3 @@ class ExhibitionETLPipeline:
 #     pipeline = ExhibitionETLPipeline()
 #     final_df = pipeline.run_pipeline()
 
-
-'''
-🎨 crawler_songshan_class.py 程式碼摘要：
-這個檔案是針對「松山文創園區」的專門爬蟲，它引入了更複雜的數據提取策略：結合了傳統網頁爬取、圖片下載、OCR 識別，以及最終的 Gemini 結構化提取。
-
-資料模型：延續 exhibition_data dataclass，將 hallname 設為 '松山文創園區'，並加入了 pageimgurl (URL 列表) 和 big_img_bytes (用於圖片二進制內容) 欄位來支援 OCR 流程。
-
-提取策略（深度混合 E + T）：
-
-I. 基礎提取 (_extract_base_info)：
-
-從展覽列表頁獲取所有展覽的詳細 URL。
-
-進入每個展覽頁面，直接提取展覽名稱、日期範圍 (start_date, end_date)、簡要概述和場地 (space)。
-
-圖片準備：提取詳細頁面內所有圖片的 URL (data.pageimgurl)。
-
-II. 圖片與 OCR 處理 (_download_img, _eocr_process)：
-
-圖片下載：_download_img 負責下載圖片的二進制內容。
-
-複雜 OCR 邏輯：_eocr_process 是一個高度客製化的 OCR 函數：
-
-使用 EasyOCR 和 OpenCV 處理圖片的 bytes 內容。
-
-實作了根據圖片 X/Y 座標進行的文字分行與分欄位 (左右欄) 邏輯，能更好地處理海報或複雜佈局上的文字，並將所有識別結果合併成一個純文字字串，附加到 item.pagetext 中。
-
-III. AI 結構化提取 (_extract_with_gemini)：
-
-輸入：將步驟 I 提取的純文本加上步驟 II 提取的 OCR 文本（item.pagetext）作為輸入。
-
-目標：從綜合文本中提取難以用爬蟲精確定位的資訊，包括開放時間 (visit_time_interval)、票價 (price)、多活動列表/備註 (note) 和相關網址 (url)。
-
-轉換 (Transform)：
-
-地理編碼 (_transform_googlegeocoding)：使用 Google Maps API 將預設地址 (self.addr) 搭配展覽場地 (item.space) 進行地理編碼。
-
-流程調整：在 run_pipeline 中，圖片下載和 OCR 處理被安排在基礎提取之後、AI 結構化提取之前，確保 AI 獲得最完整的文本資訊。
-'''

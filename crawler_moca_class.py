@@ -214,37 +214,3 @@ class ExhibitionETLPipeline:
 #     pipeline = ExhibitionETLPipeline()
 #     final_df = pipeline.run_pipeline()
 
-
-'''
-這個檔案是針對「台北當代藝術館 (MOCA)」的專用爬蟲類別，其最大的特色是將票價、時間、地址的爬取獨立成一個步驟，並直接用於填充數據結構：
-
-資料模型：同樣使用 exhibition_data dataclass，並將 hallname 設為 '台北當代藝術館'。
-
-提取策略（多階段）：
-
-I. 爬取固定資訊 (_get_price_time_addr_info)：
-
-訪問 MOCA 官網上專門的「時間與票價」頁面 (self.priceandtimepath)。
-
-直接從該頁面解析出所有票種及價格，並將結果合併為一個格式化字串 (price)。
-
-提取展館的官方開放時間 (visit_time_interval) 和地址 (addr)。
-
-註：由於票價資訊在單獨頁面且結構清晰，無需使用 AI 結構化提取。
-
-II. 爬取展覽列表 (_extract_base_info)：
-
-訪問當期展覽頁面 (self.urlpath)，遍歷展覽列表。
-
-針對每個展覽，提取標題、起訖日期、大圖 URL 等。
-
-內部呼叫 _get_overview_time_space_info(data.pageurl) 獲取單一展覽內頁的詳情（概述、展覽內的時間、地點）。
-
-將上一步驟爬取到的全館票價 (data.price) 和地址 (data.addr) 直接應用於每個展覽的 exhibition_data 實例中。
-
-轉換 (Transform)：
-
-地理編碼 (_transform_googlegeocoding)：使用 Google Maps Geocoding API 將地址轉換為經緯度。
-
-執行流程：run_pipeline() 協調了這些獨立的提取步驟，最後創建 DataFrame。
-'''
