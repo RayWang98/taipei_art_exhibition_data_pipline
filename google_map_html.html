@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+        <html>
+            <head>
+                <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+                <meta charset="utf-8">
+                <style>
+                    #map {
+                        height: 100%;
+                    }
+                    html, body {
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                    }
+                </style>
+            </head>
+
+            <body>
+                <div id="map"></div> // 後面的 JavaScript 中的 document.getElementById('map') 會引用這個 ID。
+
+                <script> // 嵌入 JavaScript 代碼開始。
+
+                    // 傳遞 Python 數據到 JavaScript
+                    const exhibitionPoints = {point_json}; // 創建java物件
+                    const center_lat = {center_lat};
+                    const center_lon = {center_lon};
+
+                    function initMap() { // 地圖初始化函式定義。 這是 Google Maps API 載入完成後會調用的入口函式。
+                        // 設定地圖中心點。 使用 Python 傳入的中心經緯度。
+                        const centerPoint = { lat: center_lat, lng: center_lon }; 
+
+                        // 1. 引用 google.maps.Map (API 載入)。 
+                        // 2. 引用 document.getElementById('map') (HTML 容器)。 
+                        // 3. 創建的 map 變數會被後續的 marker 和 infoWindow 引用。
+                        const map = new google.maps.Map(document.getElementById('map'), { // 創建地圖主物件。
+                            zoom: 18, // 放大層級
+                            center: centerPoint,
+                            mapId: "{GOOGLEMAPID}", 
+                            tilt : 45
+                        });
+
+                        // 創建資訊視窗物件 (InfoWindow)。 這是點擊標記時彈出的視窗物件。
+                        const infoWindow = new google.maps.InfoWindow(); // 引用 google.maps.InfoWindow (API 載入)。創建的 infoWindow 變數會被後續的點擊監聽器引用。
+
+                        // 迴圈遍歷所有點位並添加標記
+                        // 遍歷所有展覽點位。 針對 exhibitionPoints 陣列中的每一個 point 執行內部函式。 引用 exhibitionPoints (Python 傳來的數據)。
+                        exhibitionPoints.forEach(point => {
+                            const marker = new google.maps.Marker({ // 引用 google.maps.Marker (API 載入)。創建的 marker 變數會被後續的點擊監聽器引用。
+                                position: { lat: point.緯度, lng: point.經度},
+                                map: map, // 將標記添加到哪個地圖物件上。引用 map 變數 (第 141 列定義)。
+                                title: point.展覽名稱 // 引用當前循環的 point 數據中的 title 屬性。
+                            });
+
+                        // 添加點擊事件監聽器，點擊時顯示資訊視窗
+                        // JavaScript 語法，為 DOM 或 Maps 物件添加事件監聽器 (click 事件)。
+                        // 為當前這個 marker (地圖上的展覽點) 註冊一個事件。當使用者用滑鼠點擊它時，就會執行後面的函式。
+                            marker.addListener("click", () => {
+                                
+                                // 設定標題跟內容
+                                const image_url = point['圖片連結']; // 圖片網址
+                                const title = point['展覽名稱'] || '無標題'; // 展覽標題
+                                const space = point['展覽地點'] || '無地點資訊'; // 展覽地點
+
+                                let image_html;
+                                if (image_url) {
+                                    image_html = '<img src="' + image_url + '" style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 8px;" alt="展覽圖片">';
+                                    } else {
+                                        image_html = '<p style="font-style: italic; color: #999;">無圖片預覽</p>';
+                                        }
+                                
+                                // 這裡使用已經準備好的 HTML 變數
+                                const content = `
+                                <div style="max-width: 280px; font-family: sans-serif;">
+                                    <h5 style="margin-top: 0; color: #4CAF50;">${title}</h5>
+
+                                    ${image_html}
+
+                                    <p style="font-size: 13px; margin: 0;">地點： ${space}</p>
+                                    
+                                    </div>
+                                    `;
+                                
+                                // 將上一步準備好的文字內容 (content) 設置到事先定義好的資訊視窗物件 (infoWindow) 中。
+                                // Google Maps API InfoWindow 物件的方法，用於設定 HTML 或文字內容。
+                                infoWindow.setContent(content); 
+                                
+                                // 顯示這個資訊視窗。它告訴 Google Maps 函式庫：在地圖物件 (map) 上，將這個視窗錨定在剛才被點擊的標記 (marker) 上。Google Maps API InfoWindow 物件的方法，用於在指定的地圖和錨點上顯示視窗。
+                                infoWindow.open(map, marker);
+                            });
+                        });
+                    }
+                </script>
+
+                // 1. 引用 Python 端的 self.GOOGLEMAP (API Key)。 
+                // 2. 引用 initMap (當 API 載入完成後，自動呼叫 initMap)。
+                <script async defer src="https://maps.googleapis.com/maps/api/js?key={GOOGLEMAP}&callback=initMap">
+                </script>
+            </body>
+        </html>

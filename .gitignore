@@ -1,15 +1,27 @@
 /venv
 /__pycache__
+# 忽略環境變數檔案 (包含您的 Supabase 密鑰)
 /.env
 /*.json
 /*.csv
 /*.xlsx
 /*test*
+
+# 忽略 Windows 系統檔案
+desktop.ini
+*/desktop.ini
+
+memo.txt
+error_rule.py
+
+# 忽略 Streamlit 快取和環境設定
+.streamlit/
+
+# 忽略 Pandas 產生的暫存檔
+.DS_Store
+
+# 忽略 OSMnx 或其他 GIS 可能產生的暫存資料夾
 /01_data
 /02_images
 /03_streamlit
 /04_testver
-desktop.ini
-*/desktop.ini
-memo.txt
-error_rule.py

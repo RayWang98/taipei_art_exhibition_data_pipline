@@ -101,7 +101,7 @@ graph TD
 1. Installation
 
 ```bash
-    git clone [[https://github.com/RayWang98/exhibition_pipline_daily.git](https://github.com/RayWang98/exhibition_pipline_daily.git)]
+    git clone https://github.com/RayWang98/exhibition_pipline_daily.git
     cd exhibition_pipline_daily
     pip install -r requirements.txt
 ```
@@ -131,6 +131,5 @@ graph TD
 
 ## Author
 RayWang
- - Try to learn and transition to Data Engineer.
- - Data Engineer focusing on building robust ETL pipelines for unstructured data.
- - Transforming complex web data into actionable insights.
+ - 學習資料工程 Try to learn and transition to Data Engineer.
+ - 建立非結構化資料轉換的ETL管道 Data Engineer focusing on building robust ETL pipelines for unstructured data.
