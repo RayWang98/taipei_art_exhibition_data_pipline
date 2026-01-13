@@ -15,6 +15,7 @@
 ## 系統架構 Architecture
 
 > 本專案採用 **模組化設計 (Modular Design)** 與 **策略模式 (Strategy Pattern)**，確保對不同場館的擴充性。
+> Scalability: 新增展館只需繼承 Base Crawler 介面並實作特定邏輯，無需修改核心 Pipeline。
 
 ```mermaid
 graph TD
@@ -52,27 +53,24 @@ graph TD
 ```
 
 ## 核心策略 Key Features
-1. 混和爬蟲策略
-    針對不同網站特性採用最佳化方案：
-
+1. 混和爬蟲策略  針對不同網站特性採用最佳化方案：
     - Static: 使用 Requests + BeautifulSoup 處理結構簡單網站 (如：師大美術館)。
     - Dynamic: 使用 Selenium 處理動態載入與分頁互動 (如：北美館)。
     - Visual: 使用 EasyOCR + OpenCV 針對「圖片形式的票價表」進行文字提取 (如：富邦美術館、松山文創園區)。
 
-2. AI 轉換
-    解決傳統 Regex 無法處理的語意提取問題：
-    使用 Google Gemini 2.0 Flash 模型進行非結構化文本的 JSON 實體抽取。
-    實作 Retry Mechanism 與 Self-Correction Prompt，當 AI 回覆產出格式錯誤時，自動要求模型修正。
+2. AI 轉換  解決傳統 Regex 無法處理的語意提取問題：
+    - 使用 Google Gemini 2.0 Flash 模型進行非結構化文本的 JSON 實體抽取。
+    - 實作 Retry Mechanism 與 Self-Correction Prompt，當 AI 回覆產出格式錯誤時，自動要求模型修正。
 
-3. 工程實踐
-    OOP Design: 定義 ExhibitionETLPipeline 介面與 exhibition_data dataclass，確保資料一致性。
-    Error Handling: 針對 Network, API Rate Limit, Parsing Error 建立完整的 try-except 與 Log 機制。
-    Config Management: 使用 .env 管理 API Keys 與連線字串，確保安全性。
+3. 工程實踐  
+    - OOP Design: 定義 ExhibitionETLPipeline 介面與 exhibition_data dataclass，確保資料一致性。  
+    - Error Handling: 針對 Network, API Rate Limit, Parsing Error 建立完整的 try-except 與 Log 機制。  
+    - Config Management: 使用 .env 管理 API Keys 與連線字串，確保安全性。
 
-4. 數據應用
-    Recommendation Engine: 內建基於內容標籤 (Content-Based) 的推薦系統，根據使用者點擊行為推薦相似標籤的展覽。
-    Fuzzy Search: 整合 Rapidfuzz 提供容錯搜尋功能，優化使用者體驗。
-    Geospatial Visualization: 整合 Google Maps API 顯示展館周邊地圖。
+4. 數據應用  
+    - Recommendation Engine: 內建基於內容標籤 (Content-Based) 的推薦系統，根據使用者點擊行為推薦相似標籤的展覽。
+    - Fuzzy Search: 整合 Rapidfuzz 提供容錯搜尋功能，優化使用者體驗。
+    - Geospatial Visualization: 整合 Google Maps API 顯示展館周邊地圖。
 
 ## 技術棧 Tech Stack
 - Language: Python 3.11
